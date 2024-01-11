@@ -1,3 +1,3 @@
-module example.com/first-app
+module example.com/bank
 
 go 1.21.6
