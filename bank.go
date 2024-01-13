@@ -1,9 +1,44 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"os"
+	"strconv"
+)
+
+const accountBalanceFileName = "balance.txt"
+
+func writeBalanceToFile(balance float64) {
+	balanceText := fmt.Sprint(balance)
+	os.WriteFile(accountBalanceFileName, []byte(balanceText), 0644)
+}
+
+func getBalanceFromFile() (float64, error) {
+	data, err := os.ReadFile(accountBalanceFileName)
+
+	if err != nil {
+		return 1000, errors.New("Failed to find balance file")
+	}
+	balanceText := string(data)
+	balance, err := strconv.ParseFloat(balanceText, 64)
+
+	if err != nil {
+		return 1000, errors.New("Failed to parse stored balance value")
+	}
+
+	return balance, nil
+}
 
 func main() {
-	var accountBalance float64 = 1000
+	accountBalance, err := getBalanceFromFile()
+
+	if err != nil {
+		fmt.Println("Error")
+		fmt.Println(err)
+		fmt.Println("--------")
+		// panic("error")
+	}
 
 	for {
 
@@ -34,37 +69,27 @@ func main() {
 
 			accountBalance += depositAmount
 			fmt.Println("Balance Updated! New Amount: ", accountBalance)
+			writeBalanceToFile(accountBalance)
 			break
 		case 3:
-			fmt.Println("Goodbye!")
+			fmt.Print("Your withdrawl: ")
+			var withdrawAmount float64
+			fmt.Scan(&withdrawAmount)
+
+			if withdrawAmount <= 0 {
+				fmt.Println("Invalid amount. Must be greater than 0. ")
+				return
+			}
+
+			accountBalance -= withdrawAmount
+			fmt.Println("Balance Updated! New Amount: ", accountBalance)
+			writeBalanceToFile(accountBalance)
 			break
+		case 4:
+			fmt.Println("Goodbye!")
+			return
 		}
 
-		// if choice == 1 {
-		// 	fmt.Println("Your Balance is: ", accountBalance)
-		// } else if choice == 2 {
-
-		// } else if choice == 3 {
-		// 	fmt.Print("Your withdrawl: ")
-		// 	var withdrawalAmount float64
-		// 	fmt.Scan(&withdrawalAmount)
-
-		// 	if withdrawalAmount <= 0 {
-		// 		fmt.Println("Invalid amount. Must be greater than 0. ")
-		// 		return
-		// 	}
-
-		// 	if withdrawalAmount > accountBalance {
-		// 		fmt.Println("Invalid amount. You can't withdraw more than you have ")
-		// 		return
-		// 	}
-
-		// 	accountBalance -= withdrawalAmount
-		// 	fmt.Println("Balance Updated! New Amount: ", accountBalance)
-		// } else {
-		// 	fmt.Println("Goodbye!")
-		// 	break
-		// }
 		fmt.Println("Thank you for choosing bank!")
 	}
 
