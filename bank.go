@@ -11,6 +11,7 @@ const accountBalanceFile = "balance.txt"
 func main() {
 	accountBalance, err := fileops.GetFloatFromFile(accountBalanceFile)
 
+	// fmt.Println(" time ", randomdata.Number(1, 5))
 	if err != nil {
 		fmt.Println("Error")
 		fmt.Println(err)
