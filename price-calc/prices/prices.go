@@ -2,6 +2,7 @@ package prices
 
 import (
 	"fmt"
+	"time"
 
 	"example.com/priceCal/conversion"
 	"example.com/priceCal/iomanager"
@@ -29,12 +30,16 @@ func (job *TaxIncludedPriceJob) LoadData() error {
 	return nil
 }
 
-func (job *TaxIncludedPriceJob) Process() error {
+func (job *TaxIncludedPriceJob) Process(doneChan chan bool, errorChan chan error) {
+	time.Sleep(3 * time.Second) // simulate a slow, long-taking task
 	result := make(map[string]string)
 	err := job.LoadData()
+
 	if err != nil {
-		// fmt.Println(err)
-		return err
+		fmt.Println(err)
+		// return err
+		errorChan <- err
+		return
 	}
 	for _, price := range job.InputPrices {
 		taxIncludedPrice := price * (1 + job.TaxRate)
@@ -43,7 +48,8 @@ func (job *TaxIncludedPriceJob) Process() error {
 
 	fmt.Println(result)
 	job.IOManager.WriteResult(job)
-	return nil
+	doneChan <- true
+	// return nil
 }
 func NewTaxIncludedPriceJob(iom iomanager.IOManager, taxRate float64) *TaxIncludedPriceJob {
 	return &TaxIncludedPriceJob{
